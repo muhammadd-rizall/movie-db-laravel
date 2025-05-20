@@ -11,6 +11,7 @@ Route::get('/', function () {
 
 
 Route::get('/',[MovieController::class, 'homePage']);
+Route::get('movie/{id}/{slug}', [MovieController::class, 'detail']);
 
 
 
