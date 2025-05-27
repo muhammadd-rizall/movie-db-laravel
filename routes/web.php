@@ -12,6 +12,8 @@ Route::get('/', function () {
 
 Route::get('/',[MovieController::class, 'homePage']);
 Route::get('movie/{id}/{slug}', [MovieController::class, 'detail']);
+Route::get('create-movie',[MovieController:: class, 'create'])->name('createMovie');
+Route::post('/movie',[MovieController::class, 'store']);
 
 
 
