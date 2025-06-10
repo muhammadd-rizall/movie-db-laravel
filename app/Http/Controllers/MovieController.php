@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Movie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class MovieController extends Controller
@@ -58,5 +60,61 @@ class MovieController extends Controller
         );
 
         return redirect('/')->with('success', 'Movie Saved Successfully');
+    }
+
+    public function dataMovie(){
+        $movies = Movie::latest()->paginate(10);
+        return view('movies.datamovie', data:['movies' => $movies]);
+    }
+
+    public function edit($id)
+    {
+        $categories = Category::all();
+        $movie = Movie::find($id);
+        return view('movies.editmovie', compact('categories', 'movie'));
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        // Validasi input
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'synopsis' => 'nullable',
+            'category_id' => 'required|exists:categories,id',
+            'year' => 'required|digits:4|integer|min:1901|max:' . date('Y'),
+            'actors' => 'required',
+            'cover_image' => 'nullable|image',
+        ]);
+
+        $movie = Movie::findOrFail($id); // cari movie berdasarkan ID
+
+        $slug = Str::slug($validated['title']);
+
+        // Cek apakah ada file baru yang diupload
+        if ($request->hasFile('cover_image')) {
+            $cover = $request->file('cover_image')->store('covers', 'public');
+            $movie->cover_image = $cover;
+        }
+
+        // Update data
+        $movie->title = $validated['title'];
+        $movie->slug = $slug;
+        $movie->synopsis = $validated['synopsis'];
+        $movie->category_id = $validated['category_id'];
+        $movie->year = $validated['year'];
+        $movie->actors = $validated['actors'];
+
+        $movie->save(); // simpan ke database
+
+        return redirect(route('dataMovie'))->with('success', 'Movie updated successfully');
+    }
+
+    public function delete($id){
+
+       if(Gate::allows('delete')){
+            echo "Delete Movie with ID: $id";
+       }else {
+            abort(403, 'Unauthorized action.');
+       }
     }
 }
