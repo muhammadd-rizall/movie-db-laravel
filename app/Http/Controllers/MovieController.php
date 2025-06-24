@@ -14,8 +14,12 @@ class MovieController extends Controller
 {
 
     public function homePage(){
+        // Carousel: ambil 10 film terbaru
+        $featuredMovies = Movie::latest()->take(10)->get();
+
+
         $movies = Movie:: latest()->paginate(6);
-        return view('movies.homepage', compact('movies'));
+        return view('movies.homepage', compact('movies', 'featuredMovies'));
     }
 
     public function detail($id, $slug){

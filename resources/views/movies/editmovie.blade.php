@@ -94,7 +94,7 @@
                     </div>
 
                     {{-- Submit Button --}}
-                    <button type="submit" class="btn btn-success">Edit</button>
+                    <button type="submit" class="btn btn-primary">Edit</button>
                 </form>
             </div>
         </div>
